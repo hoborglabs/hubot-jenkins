@@ -1,0 +1,30 @@
+{
+	"jenkins": {
+		"url": "http://ci.test.company.com",
+		"token": "secretToken123"
+	},
+	"github": {
+		"url": "http://github.test.company.com"
+	},
+	"jobs": [
+		{
+			"name": "test job",
+			"jenkins": {
+				"job": "test-job",
+				"phases": [ "STARTED", "COMPLETED", "FINALIZED"]
+			}
+		},
+		{
+			"name": "test repo one",
+			"jenkins": {
+				"job": "job_one",
+				"token": "token321"
+			},
+			"github": {
+				"name": "test-organization/test-repo-one",
+				"branches": [ "branch_one" ],
+				"pull_requests": [ "opened", "closed" ]
+			}
+		}
+	]
+}

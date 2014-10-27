@@ -1,0 +1,24 @@
+{
+    "name": "test-job",
+    "url": "job/test-job/",
+    "build": {
+        "full_url": "http://ci.test.company.com/job/test-job/48/",
+        "number": 48,
+        "phase": "FINALIZED",
+        "status": "SUCCESS",
+        "url": "job/test-job/48/",
+        "scm": {
+            "url": "git@github.com:jenkinsci/test-job.git",
+            "branch": "origin/master",
+            "commit": "4886d1ff4821879410f4f4a93168e6cc179a8eb3"
+        },
+        "artifacts": {
+            "notification.jar": [
+                "http://ci.test.company.com/job/test-job/48/artifact/target/notification.jar"
+            ],
+            "notification.hpi": [
+                "http://ci.test.company.com/job/test-job/48/artifact/target/notification.hpi"
+            ]
+        }
+    }
+}
