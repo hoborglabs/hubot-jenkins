@@ -1,3 +1,9 @@
+# Commands:
+#   hubot get <jenkins-job-name> - Reply with lastes stable job build details
+#   hubot get job <jenkins-job-name> - Reply with lastes stable job build details
+#   hubot get <jenkins-job-name> #<build-number> - Reply with details of a specific build number
+#   hubot get job <jenkins-job-name> #<build-number> - Reply with details of a specific build number
+
 url = require('url')
 querystring = require 'querystring'
 jenkinsCore = require './core'
@@ -18,15 +24,15 @@ class Jenkins
 		@robot.router.post "/hubot/jenkins-events", (req, res) =>
 			@handleJenkinsEvent req, res
 
-		@robot.respond /build(?: job)(.*)/i, (msg) =>
-			jobName = msg.match[2]
-			@core.build jobName, {}, (what) ->
-				msg.send what
-
 		@robot.respond /get(?: job)? ([^ ]+)(?: #(\d+))?/i, (msg) =>
 			jobName = msg.match[1]
 			jobNumber = msg.match[2] || 'latestStable'
 			@core.getJobRun jobName, jobNumber, (what) ->
+				msg.send what
+
+		@robot.respond /(?:build|run)(?: job)? ([^ ]+).*/i, (msg) =>
+			jobName = msg.match[1]
+			@core.build jobName, {}, (what) ->
 				msg.send what
 
 	handleJenkinsEvent: (req, res) ->

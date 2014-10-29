@@ -49,14 +49,12 @@ describe 'Jenkins Hubot plugin', ->
 			expect(jenkins.core.announceJenkinsEvent).to.be.called
 			# expect(ciOperator.github.updatePullRequestStatus).to.be.called
 
-	describe 'when asked about job details', ->
-		stubGetJobRub = null
+	describe 'when asked...', ->
 		fakeReceive = null
 
-		beforeEach ->
-			stubGetJobRub = sinon.stub(jenkins.core, 'getJobRun')
-			cb = robot.respond.getCall(1).args[1]
-			regexp = robot.respond.getCall(1).args[0]
+		setupFakeReceive = (respondIndex) ->
+			cb = robot.respond.getCall(respondIndex).args[1]
+			regexp = robot.respond.getCall(respondIndex).args[0]
 
 			fakeReceive = (message) ->
 				match = message.match(regexp)
@@ -67,14 +65,41 @@ describe 'Jenkins Hubot plugin', ->
 				expect(match).not.to.be.null
 				return cb response
 
-		it 'should return it by jub run id', ->
-			fakeReceive "get job test-job #51"
-			fakeReceive "get test-job #51"
+		describe 'about job details', ->
+			stubGetJobRub = null
 
-			expect(stubGetJobRub.withArgs('test-job', '51')).to.be.calledTwice;
+			beforeEach ->
+				setupFakeReceive(0)
+				stubGetJobRub = sinon.stub(jenkins.core, 'getJobRun')
 
-		it 'should return latest stable job when job run is not specified', ->
-			fakeReceive "get job test-job"
-			fakeReceive "get test-job"
+			it 'should return it by jub run id', ->
+				fakeReceive "get job test-job #51"
+				fakeReceive "get test-job #51"
+				fakeReceive "get test-job #51"
 
-			expect(stubGetJobRub.withArgs('test-job', 'latestStable')).to.be.calledTwice;
+				expect(stubGetJobRub.withArgs('test-job', '51')).to.be.called
+
+			it 'should return latest stable job when job run is not specified', ->
+				fakeReceive "get job test-job"
+				fakeReceive "get test-job"
+
+				expect(stubGetJobRub.withArgs('test-job', 'latestStable')).to.be.calledTwice
+
+		describe 'to build a job', ->
+			stubBuild = null
+
+			beforeEach ->
+				setupFakeReceive(1)
+				stubBuild = sinon.stub(jenkins.core, 'build')
+
+			it 'should build a job', ->
+				fakeReceive "build job test-job-dev"
+				fakeReceive "build test-job-dev"
+
+				expect(stubBuild.withArgs('test-job-dev')).to.be.calledTwice
+
+			it 'should run a job', ->
+				fakeReceive "run job test-job-dev"
+				fakeReceive "run test-job-dev"
+
+				expect(stubBuild.withArgs('test-job-dev')).to.be.calledTwice
