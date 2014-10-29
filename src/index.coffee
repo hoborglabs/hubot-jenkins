@@ -18,9 +18,15 @@ class Jenkins
 		@robot.router.post "/hubot/jenkins-events", (req, res) =>
 			@handleJenkinsEvent req, res
 
-		@robot.respond /build (?: job)(.*)/, (msg) =>
-			jobName = msg.match[0]
+		@robot.respond /build(?: job)(.*)/i, (msg) =>
+			jobName = msg.match[2]
 			@core.build jobName, {}, (what) ->
+				msg.send what
+
+		@robot.respond /get(?: job)? ([^ ]+)(?: #(\d+))?/i, (msg) =>
+			jobName = msg.match[1]
+			jobNumber = msg.match[2] || 'latestStable'
+			@core.getJobRun jobName, jobNumber, (what) ->
 				msg.send what
 
 	handleJenkinsEvent: (req, res) ->
