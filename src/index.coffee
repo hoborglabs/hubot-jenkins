@@ -35,6 +35,11 @@ class Jenkins
 			@core.build jobName, {}, (what) ->
 				msg.send what
 
+		@robot.respond /(?:rebuild|rerun)(?: job)? ([^ ]+)(?: #(\d+))?/i, (msg) =>
+			jobName = msg.match[1]
+			@core.rebuild jobName, {}, (what) ->
+				msg.send what
+
 	handleJenkinsEvent: (req, res) ->
 		data = req.body
 		query = querystring.parse(url.parse(req.url).query)

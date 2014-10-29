@@ -62,6 +62,9 @@ class Jenkins
 				queue = res.getHeader('location')
 				@_checkQueue queue, cb
 
+	rebuild: (jobName, cb) ->
+		cb()
+
 	getJobRun: (jobName, id, cb) ->
 		url = "#{@config.url}/job/#{jobName}/#{id}/api/json"
 

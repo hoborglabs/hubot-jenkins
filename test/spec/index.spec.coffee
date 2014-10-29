@@ -103,3 +103,22 @@ describe 'Jenkins Hubot plugin', ->
 				fakeReceive "run test-job-dev"
 
 				expect(stubBuild.withArgs('test-job-dev')).to.be.calledTwice
+
+		describe 'to rebuild a job', ->
+			stubRebuild = null
+
+			beforeEach ->
+				setupFakeReceive(2)
+				stubRebuild = sinon.stub(jenkins.core, 'rebuild')
+
+			it 'should rebuild a job', ->
+				fakeReceive "rebuild job test-job-dev"
+				fakeReceive "rebuild test-job-dev"
+
+				expect(stubRebuild.withArgs('test-job-dev')).to.be.calledTwice
+
+			it 'should rerun a job', ->
+				fakeReceive "rerun job test-job-dev"
+				fakeReceive "rerun test-job-dev"
+
+				expect(stubRebuild.withArgs('test-job-dev')).to.be.calledTwice
