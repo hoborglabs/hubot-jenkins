@@ -23,12 +23,14 @@
     "url": "https://github.com/hoborglabs/hubot-jenkins/issues"
   },
   "homepage": "https://github.com/hoborglabs/hubot-jenkins",
+  "dependencies": {
+    "lodash": "~2.4.1",
+  },
   "devDependencies": {
     "chai": "~1.9.1",
     "coffee-script": "~1.7.1",
     "gulp": "~3.8.7",
     "gulp-mocha": "~0.5.2",
-    "lodash": "^2.4.1",
     "mocha": "~1.21.4",
     "sinon": "~1.10.3",
     "sinon-chai": "~2.5.0"
