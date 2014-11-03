@@ -2,7 +2,7 @@
   "name": "hubot-jenkins",
   "version": "0.0.1",
   "description": "Hubot Jenkins integration",
-  "main": "src/index.js",
+  "main": "src/index.coffee",
   "directories": {
     "test": "test"
   },
