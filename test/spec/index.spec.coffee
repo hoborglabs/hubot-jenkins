@@ -51,6 +51,7 @@ describe 'Jenkins Hubot plugin', ->
 
 	describe 'when asked...', ->
 		fakeReceive = null
+		response = null
 
 		setupFakeReceive = (respondIndex) ->
 			cb = robot.respond.getCall(respondIndex).args[1]
@@ -87,6 +88,10 @@ describe 'Jenkins Hubot plugin', ->
 
 		describe 'to build a job', ->
 			stubBuild = null
+			job =
+				url: 'http://a.build/url'
+				number: 51
+				name: 'test-job-dev'
 
 			beforeEach ->
 				setupFakeReceive(1)
@@ -103,6 +108,12 @@ describe 'Jenkins Hubot plugin', ->
 				fakeReceive "run test-job-dev"
 
 				expect(stubBuild.withArgs('test-job-dev')).to.be.calledTwice
+
+			it 'should announce successful job start', ->
+				fakeReceive "build test-job-dev"
+				stubBuild.withArgs('test-job-dev').callArgWith(2, null, job)
+
+				expect(response.send).to.be.calledWith(sinon.match(/Job test-job-dev started. http:\/\/a.build\/url/))
 
 		describe 'to rebuild a job', ->
 			stubRebuild = null

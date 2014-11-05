@@ -50,6 +50,9 @@ class Jenkins
 			this._buildPullRequest job.jenkins.job, pr, cb
 
 	build: (jobName, buildParams, cb) ->
+		unless @config.jobs[jobName]
+			return cb "Unknown job #{jobName}", null
+
 		extras = (_.map buildParams, (val, key) -> key + "=" + val)
 			.join('&');
 		url = "#{@config.url}/job/#{jobName}/buildWithParameters?token=#{@config.token}&#{extras}"
@@ -63,7 +66,7 @@ class Jenkins
 				@_checkQueue queue, cb
 
 	rebuild: (jobName, cb) ->
-		cb()
+		cb("not implemented yet", null)
 
 	getJobRun: (jobName, id, cb) ->
 		url = "#{@config.url}/job/#{jobName}/#{id}/api/json"

@@ -1,0 +1,11 @@
+{
+  "name": "hubot-jenkins",
+  "version": "0.0.1",
+  "dependencies": {
+    "lodash": {
+      "version": "2.4.1",
+      "from": "lodash@",
+      "resolved": "https://registry.npmjs.org/lodash/-/lodash-2.4.1.tgz"
+    }
+  }
+}

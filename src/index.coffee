@@ -24,21 +24,19 @@ class Jenkins
 		@robot.router.post "/hubot/jenkins-events", (req, res) =>
 			@handleJenkinsEvent req, res
 
+		# get [job] test-job [#51]
 		@robot.respond /get(?: job)? ([^ ]+)(?: #(\d+))?/i, (msg) =>
 			jobName = msg.match[1]
 			jobNumber = msg.match[2] || 'latestStable'
 			@core.getJobRun jobName, jobNumber, (what) ->
 				msg.send what
 
+		# build|run [job] test-job
 		@robot.respond /(?:build|run)(?: job)? ([^ ]+).*/i, (msg) =>
-			jobName = msg.match[1]
-			@core.build jobName, {}, (what) ->
-				msg.send what
+			@buildJob msg.match[1], {}, msg
 
 		@robot.respond /(?:rebuild|rerun)(?: job)? ([^ ]+)(?: #(\d+))?/i, (msg) =>
-			jobName = msg.match[1]
-			@core.rebuild jobName, {}, (what) ->
-				msg.send what
+			@rebuildJob msg.match[1], msg
 
 	handleJenkinsEvent: (req, res) ->
 		data = req.body
@@ -53,3 +51,31 @@ class Jenkins
 			console.log "jenkins event notifier error: #{error}. Request: #{req.body}"
 
 		res.end ""
+
+	buildJob: (jobName, parameters, msg) ->
+		@core.build jobName, parameters, (err, buildData) ->
+			if err
+				return msg.send "Oops, starting job failed #{err}"
+
+			msg.send "Job #{buildData.name} started. #{buildData.url}"
+
+	rebuildJob: (jobName, msg) ->
+		@core.rebuild jobName, {}, (err, buildData) ->
+			if err
+				return msg.send "Oops, rebuilding job failed - #{err}"
+
+			msg.send "Job #{buildData.name} restarted. #{buildData.url}"
+
+	getJob: (jobName, jobNumber, msg) ->
+		statusMap =
+			SUCCESS: 'was finished successfuly'
+			ABORTED: 'was aborted'
+			RUNNING: 'is still running'
+
+		@core.getJobRun jobName, jobNumber, (err, jobData) ->
+			if err
+				return msg.send "Oops, couldn't get job data. #{err}"
+
+			msg.send "Job #{jobData.name} #{statusMap[jobData.status]}\n" +
+				"url: #{jobData.url}\n" +
+				"duration: #{jobData.duration}";
