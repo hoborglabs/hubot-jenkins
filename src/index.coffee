@@ -28,8 +28,7 @@ class Jenkins
 		@robot.respond /get(?: job)? ([^ ]+)(?: #(\d+))?/i, (msg) =>
 			jobName = msg.match[1]
 			jobNumber = msg.match[2] || 'latestStable'
-			@core.getJobRun jobName, jobNumber, (what) ->
-				msg.send what
+			@getJob jobName, jobNumber, msg
 
 		# build|run [job] test-job
 		@robot.respond /(?:build|run)(?: job)? ([^ ]+).*/i, (msg) =>

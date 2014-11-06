@@ -22,7 +22,7 @@ gulp.task('test:dev', function () {
 });
 
 // Rerun the task when a file changes
-gulp.task('watch', [ 'test:dev' ], function(stream) {
+gulp.task('watch', [ ], function(stream) {
 	gulp.watch(paths.scripts.concat(paths.tests), [ 'test:dev' ]);
 });
 
