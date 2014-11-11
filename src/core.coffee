@@ -75,18 +75,7 @@ class Jenkins
 		cb("not implemented yet", null)
 
 	getJobRun: (jobName, id, cb) ->
-		url = "#{@config.url}/job/#{jobName}/#{id}/api/json"
-
-		@http(url)
-			.get() (err, res, body) =>
-				if err
-					return cb err, null
-
-				jobData = JSON.parse body
-				if !jobData
-					return cb "Can't parse job's JSON - #{body}", null
-
-				cb null, jobData
+		@_getJsonApi "#{@config.url}/job/#{jobName}/#{id}/", cb
 
 	_buildPullRequest: (job, pr, cb) ->
 		@build(job, {
@@ -119,18 +108,11 @@ class Jenkins
 		cfg
 
 	_checkQueue: (queueUrl, cb) ->
-		url = queueUrl.replace(/\/?$/, '') + "/api/json"
+		@_getJsonApi queueUrl, (err, data) =>
+			if err
+				return cb err, null
 
-		@http(url)
-			.get() (err, res, body) =>
-				if err
-					return cb err, null
-
-				queueData = JSON.parse body
-				if !queueData
-					return cb "Can't parse queue's JSON - #{body}", null
-
-				@_getJsonApi queueData.executable.url, cb
+			@_getJsonApi data.executable.url, cb
 
 	_getJsonApi: (url, cb) ->
 		url = url.replace(/\/?$/, '') + "/api/json"
@@ -142,6 +124,6 @@ class Jenkins
 
 				data = JSON.parse body
 				if !data
-					return cb "Can't parse as JSON - #{body}", null
+					return cb "Can't parse response as JSON - #{body}", null
 
 				cb null, data
