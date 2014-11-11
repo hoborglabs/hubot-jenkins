@@ -91,7 +91,7 @@ describe 'Jenkins Hubot plugin', ->
 			job =
 				url: 'http://a.build/url'
 				number: 51
-				name: 'test-job-dev'
+				fullDisplayName: 'Test Job (dev) #21'
 
 			beforeEach ->
 				setupFakeReceive(1)
@@ -113,7 +113,8 @@ describe 'Jenkins Hubot plugin', ->
 				fakeReceive "build test-job-dev"
 				stubBuild.withArgs('test-job-dev').callArgWith(2, null, job)
 
-				expect(response.send).to.be.calledWith(sinon.match(/Job test-job-dev started. http:\/\/a.build\/url/))
+				expect(response.send).to.be
+					.calledWith(sinon.match(/Added job Test Job \(dev\) #\d+ - http:\/\/a.build\/url/))
 
 		describe 'to rebuild a job', ->
 			stubRebuild = null

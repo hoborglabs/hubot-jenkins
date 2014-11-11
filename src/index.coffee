@@ -56,7 +56,7 @@ class Jenkins
 			if err
 				return msg.send "Oops, starting job failed #{err}"
 
-			msg.send "Job #{buildData.name} started. #{buildData.url}"
+			msg.send "Added job #{buildData.fullDisplayName} - #{buildData.url}"
 
 	rebuildJob: (jobName, msg) ->
 		@core.rebuild jobName, {}, (err, buildData) ->
