@@ -16,30 +16,30 @@ describe 'Jenkins core', () ->
 	describe 'when Jenkins job "test-job" exists', ->
 		beforeEach () ->
 			httpBuild =
-				get: ->
-			sinon.stub(httpBuild, 'get').returns(
-				(cb) -> cb(
-					null,
-					{ getHeader: sinon.stub().returns('http://192.168.1.129:5080/jenkins/queue/item/5/')},
-					''
-				);
-			);
-
+				get: -> sinon.stub()
+				post: ->
 			httpQueue =
 				get: ->
-			sinon.stub(httpQueue, 'get').returns( (cb) -> cb(null, {}, {
+			httpJobRun =
+				get: ->
+
+			sinon.stub(httpBuild, 'post').returns((cb) -> cb(
+				null,
+				{ headers: { location: 'http://192.168.1.129:5080/jenkins/queue/item/5/' } },
+				''
+			));
+
+			sinon.stub(httpQueue, 'get').returns( (cb) -> cb(null, {}, JSON.stringify({
 				executable:
 					number: 51,
 					url: 'http://192.168.1.129:5080/jenkins/job/test-job/51/'
-			}));
+			})));
 
-			httpJobRun =
-				get: ->
-			sinon.stub(httpJobRun, 'get').returns( (cb) -> cb(null, {}, {
+			sinon.stub(httpJobRun, 'get').returns( (cb) -> cb(null, {}, JSON.stringify({
 				number: 51
 				duration: 5134,
 				url: 'http://192.168.1.129:5080/jenkins/job/test-job/51/',
-			}));
+			})));
 
 			http = sinon.stub()
 			http.withArgs(sinon.match(/.*\/job\/test-job\/build.*/)).returns(httpBuild)

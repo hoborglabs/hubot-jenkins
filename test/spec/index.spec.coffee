@@ -84,7 +84,7 @@ describe 'Jenkins Hubot plugin', ->
 				fakeReceive "get job test-job"
 				fakeReceive "get test-job"
 
-				expect(stubGetJobRub.withArgs('test-job', 'latestStable')).to.be.calledTwice
+				expect(stubGetJobRub.withArgs('test-job', 'lastBuild')).to.be.calledTwice
 
 		describe 'to build a job', ->
 			stubBuild = null

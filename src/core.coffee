@@ -53,16 +53,22 @@ class Jenkins
 		unless @config.jobs[jobName]
 			return cb "Unknown job #{jobName}", null
 
-		extras = (_.map buildParams, (val, key) -> key + "=" + val)
-			.join('&');
-		url = "#{@config.url}/job/#{jobName}/buildWithParameters?token=#{@config.token}&#{extras}"
+		build = 'build'
+
+		if Object.keys(buildParams).length > 0
+			build = 'buildWithParameters'
+
+		buildParams['token'] = @config.token if @config.token
+		url = "#{@config.url}/job/#{jobName}/#{build}"
+		extras = _.map buildParams, (val, key) -> key + "=" + val
+		url += "?#{extras.join('&')}"
 
 		@http(url)
-			.get() (err, res, body) =>
+			.post() (err, res, body) =>
 				if err
 					return cb err, null
 
-				queue = res.getHeader('location')
+				queue = res.headers.location
 				@_checkQueue queue, cb
 
 	rebuild: (jobName, cb) ->
@@ -76,7 +82,11 @@ class Jenkins
 				if err
 					return cb err, null
 
-				cb null, body
+				jobData = JSON.parse body
+				if !jobData
+					return cb "Can't parse job's JSON - #{body}", null
+
+				cb null, jobData
 
 	_buildPullRequest: (job, pr, cb) ->
 		@build(job, {
@@ -109,21 +119,29 @@ class Jenkins
 		cfg
 
 	_checkQueue: (queueUrl, cb) ->
-		url = ("#{queueUrl}/api/json").replace(/\/+/g, '/')
+		url = queueUrl.replace(/\/?$/, '') + "/api/json"
 
 		@http(url)
 			.get() (err, res, body) =>
 				if err
 					return cb err, null
 
-				@_getJsonApi body.executable.url, cb
+				queueData = JSON.parse body
+				if !queueData
+					return cb "Can't parse queue's JSON - #{body}", null
+
+				@_getJsonApi queueData.executable.url, cb
 
 	_getJsonApi: (url, cb) ->
-		url = ("#{url}/api/json").replace(/\/+/g, '/')
+		url = url.replace(/\/?$/, '') + "/api/json"
 
 		@http(url)
 			.get() (err, res, body) =>
 				if err
 					return cb err, null
 
-				cb null, body
+				data = JSON.parse body
+				if !data
+					return cb "Can't parse as JSON - #{body}", null
+
+				cb null, data

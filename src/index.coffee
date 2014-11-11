@@ -27,7 +27,7 @@ class Jenkins
 		# get [job] test-job [#51]
 		@robot.respond /get(?: job)? ([^ ]+)(?: #(\d+))?/i, (msg) =>
 			jobName = msg.match[1]
-			jobNumber = msg.match[2] || 'latestStable'
+			jobNumber = msg.match[2] || 'lastBuild'
 			@getJob jobName, jobNumber, msg
 
 		# build|run [job] test-job
