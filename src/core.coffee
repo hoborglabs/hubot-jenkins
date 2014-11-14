@@ -24,20 +24,7 @@ class Jenkins
 		unless phaseFound
 			return cb ''
 
-		if 'STARTED' == data.build.phase
-			return cb "Jenkins job #{data.name} started. #{data.build.full_url}"
-
-		if 'FINALIZED' == data.build.phase
-			statusMap = {
-				SUCCESS: 'successful'
-			};
-
-			return cb "Jenkins job #{data.name} finished #{statusMap[data.build.status]}. #{data.build.full_url}"
-
-		if 'COMPLETED' == data.build.phase
-			return cb "Jenkins job #{data.name} completed. #{data.build.full_url}"
-
-		cb ""
+		cb @_getJobStatusMessage(data)
 
 	notifyJenkinsAboutPullRequest: (data, robot, cb) ->
 		if data.action != 'opened'
@@ -53,15 +40,18 @@ class Jenkins
 		unless @config.jobs[jobName]
 			return cb "Unknown job #{jobName}", null
 
+		job = @config.jobs[jobName]
 		build = 'build'
+		params = {}
 
 		if Object.keys(buildParams).length > 0
 			build = 'buildWithParameters'
+			params = _.zipObject job.jenkins.params, buildParams
+			params = _.omit params, (item) -> !item?
 
-		buildParams['token'] = @config.token if @config.token
-		url = "#{@config.url}/job/#{jobName}/#{build}"
-		extras = _.map buildParams, (val, key) -> key + "=" + val
-		url += "?#{extras.join('&')}"
+		params['token'] = @config.token if @config.token
+		extras = _.map params, (val, key) -> key + "=" + encodeURIComponent val
+		url = "#{@config.url}/job/#{jobName}/#{build}?#{extras.join('&')}"
 
 		@http(url)
 			.post() (err, res, body) =>
@@ -127,3 +117,20 @@ class Jenkins
 					return cb "Can't parse response as JSON - #{body}", null
 
 				cb null, data
+
+	_getJobStatusMessage: (data) ->
+		phaseMap =
+			STARTED: 'started'
+			FINALIZED: 'almost done'
+			COMPLETED: 'completed'
+		statusMap =
+			SUCCESS: 'successful'
+			FAILED: 'with errors'
+
+		if data.build.phase in [ 'STARTED', 'FINALIZED' ]
+			return "Job '#{data.name}' #{phaseMap[data.build.phase]}. #{data.build.full_url}"
+
+		if 'COMPLETED' == data.build.phase
+			return "Job #{data.name} #{phaseMap[data.build.phase]} #{statusMap[data.build.status]}. #{data.build.full_url}"
+
+		"Unknown job phase #{data.build.phase} for job #{data.name}"

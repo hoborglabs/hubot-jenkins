@@ -15,6 +15,17 @@
 			}
 		},
 		{
+			"name": "params test job",
+			"jenkins": {
+				"job": "test-job-params",
+				"phases": [ "STARTED", "COMPLETED", "FINALIZED"],
+				"params": [
+					"GIT_SHA",
+					"cause"
+				]
+			}
+		},
+		{
 			"name": "test repo one",
 			"jenkins": {
 				"job": "job_one",

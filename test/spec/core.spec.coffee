@@ -1,17 +1,16 @@
-chai = require('chai');
-sinon = require('sinon');
-chai.use(require('sinon-chai'));
-expect = chai.expect;
+chai = require 'chai'
+sinon = require 'sinon'
+chai.use require 'sinon-chai';
+expect = chai.expect
 _ = require 'lodash'
 configHelper = require '../config'
 createJenkins = require('../../src/core').create
 
 describe 'Jenkins core', () ->
-	jenkins = null;
-	http = null;
+	jenkins = null
+	http = null
 	process.env.HUBOT_CIOPERATOR_CONFIG = __dirname + "/../test_config.json"
-	testCfg = _.merge {}, require(process.env.HUBOT_CIOPERATOR_CONFIG);
-
+	testCfg = _.merge {}, require process.env.HUBOT_CIOPERATOR_CONFIG
 
 	describe 'when Jenkins job "test-job" exists', ->
 		beforeEach () ->
@@ -42,17 +41,39 @@ describe 'Jenkins core', () ->
 			})));
 
 			http = sinon.stub()
-			http.withArgs(sinon.match(/.*\/job\/test-job\/build.*/)).returns(httpBuild)
+			http.withArgs(sinon.match(/.*\/job\/test-job(-params)?\/build.*/)).returns(httpBuild)
 			http.withArgs(sinon.match(/.*\/queue\/item\/5\/api\/json/)).returns(httpQueue)
 			http.withArgs(sinon.match(/.*\/job\/test-job\/51\/api\/json/)).returns(httpJobRun)
 
 			jenkins = createJenkins(http, testCfg);
 
 		it 'should start a new job', (done) ->
-			jenkins.build('test-job', {}, (err, data) ->
+			jenkins.build('test-job', [], (err, data) ->
 				expect(err).to.be.null
 				expect(data).to.contain.key('number')
 				expect(data.number).to.be.equals(51)
+				done()
+			)
+
+		it 'should start a new job with params', (done) ->
+			jenkins.build('test-job-params', ['abc4321'], (err, data) ->
+				expect(err).to.be.null
+				expect(data).to.contain.key('number')
+				expect(data.number).to.be.equals(51)
+
+				expect(http.withArgs(sinon.match(/.*\/job\/test-job(-params)?\/build.*/)))
+					.to.be.calledWith(sinon.match(/.*GIT_SHA=abc4321.*/))
+
+				done()
+			)
+
+		it 'should url-escape new job parameters', (done) ->
+			jenkins.build('test-job-params', ['123', 'started by hubot'], (err, data) ->
+				expect(err).to.be.null
+
+				expect(http.withArgs(sinon.match(/.*\/job\/test-job(-params)?\/build.*/)))
+					.to.be.calledWith(sinon.match(/.*cause=started\%20by\%20hubot.*/))
+
 				done()
 			)
 
@@ -77,14 +98,14 @@ describe 'Jenkins core', () ->
 		},
 		{
 			phases: [ 'FINALIZED' ]
-			ok: [ { phase: 'FINALIZED', text: 'finished' } ]
+			ok: [ { phase: 'FINALIZED', text: 'almost done' } ]
 			notOk: [ 'STARTED', 'COMPLETED' ]
 		},
 		{
 			phases: [ 'all' ]
 			ok: [ { phase: 'STARTED', text: 'started' },
 				{ phase: 'COMPLETED', text: 'completed' },
-				{ phase: 'FINALIZED', text: 'finished' } ]
+				{ phase: 'FINALIZED', text: 'almost done' } ]
 			notOk: [ ]
 		}
 	]

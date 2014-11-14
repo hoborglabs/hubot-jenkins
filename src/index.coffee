@@ -31,8 +31,8 @@ class Jenkins
 			@getJob jobName, jobNumber, msg
 
 		# build|run [job] test-job
-		@robot.respond /(?:build|run)(?: job)? ([^ ]+).*/i, (msg) =>
-			@buildJob msg.match[1], {}, msg
+		@robot.respond /(?:build|run)(?: job)? ([^ ]+) ?(.*)/i, (msg) =>
+			@buildJob msg.match[1], msg.match[2], msg
 
 		@robot.respond /(?:rebuild|rerun)(?: job)? ([^ ]+)(?: #(\d+))?/i, (msg) =>
 			@rebuildJob msg.match[1], msg
