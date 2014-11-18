@@ -1,0 +1,24 @@
+{
+    "name": "{{JOBNAME}}",
+    "url": "job/{{JOBNAME}}/",
+    "build": {
+        "full_url": "http://ci.test.company.com/job/{{JOBNAME}}/48/",
+        "number": 48,
+        "phase": "{{PHASE}}",
+        "status": "{{STATUS}}",
+        "url": "job/{{JOBNAME}}/48/",
+        "scm": {
+            "url": "git@github.com:jenkinsci/{{JOBNAME}}.git",
+            "branch": "origin/master",
+            "commit": "4886d1ff4821879410f4f4a93168e6cc179a8eb3"
+        },
+        "artifacts": {
+            "notification.jar": [
+                "http://ci.test.company.com/job/{{JOBNAME}}/48/artifact/target/notification.jar"
+            ],
+            "notification.hpi": [
+                "http://ci.test.company.com/job/{{JOBNAME}}/48/artifact/target/notification.hpi"
+            ]
+        }
+    }
+}
